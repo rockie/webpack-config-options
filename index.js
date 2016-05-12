@@ -19,6 +19,11 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 module.exports = function (entry, outputPath, publicPath, options) {
     options = Object.assign({scriptPath: 'scripts', stylePath: 'styles'}, options);
 
+    let cssOption = options.production ? "css-loader?modules&importLoaders=1" : "css-loader?sourceMap&modules&importLoaders=1";
+    if (options.postcss) {
+        cssOption += '!postcss-loader';
+    }
+
     let config = {
         entry: entry,
         devtool: options.devtool || (options.production ? '#eval' : '#source-map'),
@@ -41,7 +46,7 @@ module.exports = function (entry, outputPath, publicPath, options) {
                 {
                     test: /\.css$/,
                     exclude: /.*\.min.css/,
-                    loader: ExtractTextPlugin.extract("style-loader", options.production ? "css-loader?modules&importLoaders=1!postcss-loader" : "css-loader?sourceMap&modules&importLoaders=1!postcss-loader")
+                    loader: ExtractTextPlugin.extract("style-loader", cssOption)
                 },
                 {
                     test: /\.svg$/,
@@ -74,7 +79,7 @@ module.exports = function (entry, outputPath, publicPath, options) {
         config.resolve.extensions.push('.scss');
         config.module.loaders.push({
             test: /(\.scss)$/,
-            loader: ExtractTextPlugin.extract('style-loader', options.production ? 'css-loader?modules&importLoaders=1!postcss-loader!sass-loader' : 'css-loader?sourceMap&modules&importLoaders=1!postcss-loader!sass-loader?sourceMap')
+            loader: ExtractTextPlugin.extract('style-loader', options.production ? cssOption + '!sass-loader' : cssOption + '!sass-loader?sourceMap')
         });
     }
 
