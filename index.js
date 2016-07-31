@@ -25,6 +25,7 @@ module.exports = function (entry, outputPath, publicPath, options) {
     }
 
     let config = {
+        name: "browser",
         entry: entry,
         devtool: options.devtool || (options.production ? '#eval' : '#source-map'),
         resolve: {
@@ -41,11 +42,10 @@ module.exports = function (entry, outputPath, publicPath, options) {
                 {
                     test: /\.jsx?$/,
                     exclude: /node_modules/,
-                    loader: 'react-hot!babel?' + JSON.stringify({ presets: ['react', 'es2015'] })
+                    loader: (options.regenerator ? 'regenerator!' : '') + (options.production ? '' : 'react-hot!') + 'babel?' + JSON.stringify({ cacheDirectory: true, presets: ['react', 'es2015', 'stage-0' ], plugins: (options.regenerator ? ['transform-regenerator'] : []).concat(['transform-runtime', 'transform-object-assign', 'add-module-exports']) })
                 },
                 {
-                    test: /\.css$/,
-                    exclude: /.*\.min.css/,
+                    test: /\.css$/,                    
                     loader: ExtractTextPlugin.extract("style-loader", cssOption)
                 },
                 {
@@ -79,6 +79,7 @@ module.exports = function (entry, outputPath, publicPath, options) {
         config.resolve.extensions.push('.scss');
         config.module.loaders.push({
             test: /(\.scss)$/,
+            exclude: /node_modules/,
             loader: ExtractTextPlugin.extract('style-loader', options.production ? cssOption + '!sass-loader' : cssOption + '!sass-loader?sourceMap')
         });
     }
