@@ -27,7 +27,7 @@ module.exports = function (entry, outputPath, publicPath, options) {
     let config = {
         name: "browser",
         entry: entry,
-        devtool: options.devtool || (options.production ? '#eval' : '#source-map'),
+        devtool: options.devtool || (options.production ? '#cheap-module-source-map' : '#source-map'),
         resolve: {
             extensions: ['', '.jsx', '.js', '.css']
         },
@@ -65,7 +65,9 @@ module.exports = function (entry, outputPath, publicPath, options) {
         plugins: [
             new ExtractTextPlugin(path.join(options.stylePath, '[name].style.css'), { allChunks: true }),
             new webpack.DefinePlugin({
-                'process.env.NODE_ENV': options.production ? JSON.stringify('production') : JSON.stringify('development')
+                'process.env': {
+                    'NODE_ENV': options.production ? JSON.stringify('production') : JSON.stringify('development')
+                }
             })
         ]
     };
